@@ -7,11 +7,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Bot, Send, User } from 'lucide-react';
 import { useRef, useState, useTransition } from 'react';
+import { auth } from "@/lib/firebase";
 
 type Message = {
   role: 'user' | 'assistant';
   content: string;
 };
+
+async function logChatHistory(messages: Message[]) {
+  const user = auth.currentUser;
+  if (!user) return;
+  await fetch("/api/history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      uid: user.uid,
+      type: "chat",
+      data: { messages },
+    }),
+  });
+}
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,7 +45,13 @@ export default function ChatPage() {
 
     startTransition(async () => {
       const result = await agriculturalQuery({ query: userInput });
-      setMessages([...newMessages, { role: 'assistant', content: result.answer }]);
+      const updatedMessages: Message[] = [
+        ...newMessages,
+        { role: 'assistant', content: String(result.answer) }
+      ];
+      setMessages(updatedMessages);
+      // Wait for setMessages to complete before logging (next tick)
+      setTimeout(() => logChatHistory(updatedMessages), 0);
     });
   };
 

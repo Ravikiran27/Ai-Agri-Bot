@@ -1,9 +1,7 @@
 'use client';
 
-import {
-  plantDiseaseDiagnosis,
-  type PlantDiseaseDiagnosisOutput,
-} from '@/ai/flows/plant-disease-diagnosis-flow';
+import { plantDiseaseDiagnosis, type PlantDiseaseDiagnosisOutput } from '@/ai/flows/plant-disease-diagnosis-flow';
+import { auth } from '@/lib/firebase';
 import {
   Accordion,
   AccordionContent,
@@ -42,6 +40,20 @@ export default function DiseasePredictionPage() {
   const [description, setDescription] = useState('');
   const { toast } = useToast();
 
+  async function logDiseaseHistory(input: any, output: PlantDiseaseDiagnosisOutput) {
+    const user = auth.currentUser;
+    if (!user) return;
+    await fetch("/api/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid: user.uid,
+        type: "disease-prediction",
+        data: { input, output },
+      }),
+    });
+  }
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -76,11 +88,10 @@ export default function DiseasePredictionPage() {
     }
 
     startTransition(async () => {
-      const diagnosis = await plantDiseaseDiagnosis({
-        photoDataUri: dataUrl,
-        description,
-      });
+      const input = { photoDataUri: dataUrl, description };
+      const diagnosis = await plantDiseaseDiagnosis(input);
       setResult(diagnosis);
+      await logDiseaseHistory(input, diagnosis);
     });
   };
 

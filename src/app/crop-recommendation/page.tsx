@@ -29,6 +29,7 @@ import { Leaf, Bot, CircleDashed } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { auth } from "@/lib/firebase";
 
 const formSchema = z.object({
   soilpH: z.coerce.number().min(0).max(14),
@@ -55,11 +56,26 @@ export default function CropRecommendationPage() {
     },
   });
 
+  async function logCropHistory(input: CropRecommendationInput, output: CropRecommendationOutput) {
+    const user = auth.currentUser;
+    if (!user) return;
+    await fetch("/api/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid: user.uid,
+        type: "crop-recommendation",
+        data: { input, output },
+      }),
+    });
+  }
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     setResult(null);
     startTransition(async () => {
       const recommendation = await recommendCrop(values as CropRecommendationInput);
       setResult(recommendation);
+      await logCropHistory(values as CropRecommendationInput, recommendation);
     });
   }
 
