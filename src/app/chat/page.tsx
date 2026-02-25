@@ -6,38 +6,60 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Bot, Send, User } from 'lucide-react';
-import { useRef, useState, useTransition } from 'react';
-import { auth } from "@/lib/firebase";
+import { useRef, useState, useTransition, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { addChatMessage, getChatMessages } from '@/lib/chat-supabase';
+
 
 type Message = {
   role: 'user' | 'assistant';
   content: string;
 };
 
-async function logChatHistory(messages: Message[]) {
-  const user = auth.currentUser;
-  if (!user) return;
-  await fetch("/api/history", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      uid: user.uid,
-      type: "chat",
-      data: { messages },
-    }),
-  });
+
+async function logChatHistorySupabase(messages: Message[], userId: string) {
+  // Store the entire chat as a single message for now
+  await addChatMessage({ user_id: userId, message: JSON.stringify(messages) });
 }
 
-export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchUserAndMessages = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        setError("Not logged in");
+        return;
+      }
+      setUserId(user.id);
+      const { data, error } = await getChatMessages(user.id);
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      // If you want to show the latest chat session, parse the last message
+      if (data && data.length > 0) {
+        try {
+          const last = data[data.length - 1];
+          const parsed = JSON.parse(last.message);
+          setMessages(Array.isArray(parsed) ? parsed : []);
+        } catch {
+          setMessages([]);
+        }
+      }
+    };
+    fetchUserAndMessages();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const userInput = input.trim();
-    if (!userInput) return;
+    if (!userInput || !userId) return;
 
     const newMessages: Message[] = [...messages, { role: 'user', content: userInput }];
     setMessages(newMessages);
@@ -50,8 +72,7 @@ export default function ChatPage() {
         { role: 'assistant', content: String(result.answer) }
       ];
       setMessages(updatedMessages);
-      // Wait for setMessages to complete before logging (next tick)
-      setTimeout(() => logChatHistory(updatedMessages), 0);
+      setTimeout(() => logChatHistorySupabase(updatedMessages, userId), 0);
     });
   };
 
