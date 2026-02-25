@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -55,7 +56,9 @@ export default function HistoryPage() {
             if (Array.isArray(parsed)) {
               chatArr = parsed.map((msg: any) => `${msg.role}: ${msg.content}`);
             }
-          } catch {}
+          } catch {
+            // ignore parse errors
+          }
           return {
             id: chat.id,
             user_id: chat.user_id,
@@ -64,7 +67,7 @@ export default function HistoryPage() {
           };
         });
       }
-      let allHistory = [];
+      let allHistory: HistoryItem[] = [];
       if (featureData) allHistory = [...featureData];
       if (chatHistory.length > 0) allHistory = [...allHistory, ...chatHistory];
       allHistory.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());

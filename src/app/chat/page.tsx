@@ -1,7 +1,8 @@
-'use client';
-
 import { agriculturalQuery } from '@/ai/flows/agricultural-query';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+"use client";
+
+
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -9,19 +10,18 @@ import { Bot, Send, User } from 'lucide-react';
 import { useRef, useState, useTransition, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { addChatMessage, getChatMessages } from '@/lib/chat-supabase';
-
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 type Message = {
   role: 'user' | 'assistant';
   content: string;
 };
 
-
 async function logChatHistorySupabase(messages: Message[], userId: string) {
-  // Store the entire chat as a single message for now
   await addChatMessage({ user_id: userId, message: JSON.stringify(messages) });
 }
 
+export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -42,7 +42,6 @@ async function logChatHistorySupabase(messages: Message[], userId: string) {
         setError(error.message);
         return;
       }
-      // If you want to show the latest chat session, parse the last message
       if (data && data.length > 0) {
         try {
           const last = data[data.length - 1];
@@ -74,7 +73,7 @@ async function logChatHistorySupabase(messages: Message[], userId: string) {
       setMessages(updatedMessages);
       setTimeout(() => logChatHistorySupabase(updatedMessages, userId), 0);
     });
-  }
+  };
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
