@@ -6,8 +6,12 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Leaf, MessageSquare, Microscope } from 'lucide-react';
+import { Leaf, MessageSquare, Microscope, LogOut } from 'lucide-react';
 import Link from 'next/link';
+
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 const links = [
   {
@@ -38,6 +42,12 @@ const links = [
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = useCallback(async () => {
+    await supabase.auth.signOut();
+    router.push('/auth');
+  }, [router]);
 
   return (
     <SidebarMenu>
@@ -58,6 +68,19 @@ export function SidebarNav() {
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}
+      {/* Logout Button */}
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          onClick={handleLogout}
+          tooltip={{
+            children: 'Logout',
+            side: 'right',
+          }}
+        >
+          <LogOut />
+          <span>Logout</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     </SidebarMenu>
   );
 }
