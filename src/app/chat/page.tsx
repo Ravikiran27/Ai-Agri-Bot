@@ -1,6 +1,6 @@
-import { agriculturalQuery } from '@/ai/flows/agricultural-query';
 
 "use client";
+import { agriculturalQuery } from '@/ai/flows/agricultural-query';
 
 
 import { Button } from '@/components/ui/button';
