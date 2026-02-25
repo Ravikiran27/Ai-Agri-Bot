@@ -1,7 +1,7 @@
 'use client';
 
 import { plantDiseaseDiagnosis, type PlantDiseaseDiagnosisOutput } from '@/ai/flows/plant-disease-diagnosis-flow';
-import { auth } from '@/lib/firebase';
+import { supabase } from '@/lib/supabase';
 import {
   Accordion,
   AccordionContent,
@@ -41,13 +41,13 @@ export default function DiseasePredictionPage() {
   const { toast } = useToast();
 
   async function logDiseaseHistory(input: any, output: PlantDiseaseDiagnosisOutput) {
-    const user = auth.currentUser;
-    if (!user) return;
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return;
     await fetch("/api/history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        uid: user.uid,
+        uid: user.id,
         type: "disease-prediction",
         data: { input, output },
       }),

@@ -29,7 +29,7 @@ import { Leaf, Bot, CircleDashed } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { auth } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   soilpH: z.coerce.number().min(0).max(14),
@@ -57,13 +57,13 @@ export default function CropRecommendationPage() {
   });
 
   async function logCropHistory(input: CropRecommendationInput, output: CropRecommendationOutput) {
-    const user = auth.currentUser;
-    if (!user) return;
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return;
     await fetch("/api/history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        uid: user.uid,
+        uid: user.id,
         type: "crop-recommendation",
         data: { input, output },
       }),
