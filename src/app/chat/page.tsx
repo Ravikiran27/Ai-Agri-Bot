@@ -1,6 +1,5 @@
-import { useRouter } from 'next/navigation';
-
 "use client";
+import { useRouter } from 'next/navigation';
 import { agriculturalQuery } from '@/ai/flows/agricultural-query';
 
 
