@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation';
 
 "use client";
 import { agriculturalQuery } from '@/ai/flows/agricultural-query';
@@ -28,12 +29,13 @@ export default function ChatPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserAndMessages = async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
-        setError("Not logged in");
+        router.replace('/auth');
         return;
       }
       setUserId(user.id);
@@ -53,7 +55,7 @@ export default function ChatPage() {
       }
     };
     fetchUserAndMessages();
-  }, []);
+  }, [router]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

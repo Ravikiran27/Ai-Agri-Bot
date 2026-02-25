@@ -28,6 +28,12 @@ const links = [
     icon: Microscope,
     tooltip: 'Disease Prediction',
   },
+  {
+    href: '/history',
+    label: 'History',
+    icon: MessageSquare,
+    tooltip: 'Feature & Chat History',
+  },
 ];
 
 export function SidebarNav() {
