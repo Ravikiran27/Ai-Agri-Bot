@@ -74,7 +74,7 @@ async function logChatHistorySupabase(messages: Message[], userId: string) {
       setMessages(updatedMessages);
       setTimeout(() => logChatHistorySupabase(updatedMessages, userId), 0);
     });
-  };
+  } // No comma here
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col">
