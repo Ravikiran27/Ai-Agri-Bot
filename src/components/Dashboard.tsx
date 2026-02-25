@@ -70,13 +70,5 @@ export default function Dashboard() {
           </button>
           <button
             type="button"
-            className="text-sm underline mt-2"
+            // Removed old Firebase Dashboard component. Supabase is now the only auth system.
             onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
-          >
-            {mode === "signup" ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-          </button>
-        </form>
-      )}
-    </div>
-  );
-}

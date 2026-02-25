@@ -41,50 +41,5 @@ export default function AuthForm() {
     }
   };
 
-  const handleSignOut = async () => {
+  // Removed old Firebase AuthForm component. Supabase is now the only auth system.
     await signOut(auth);
-    setUser(null);
-  };
-
-  return (
-    <div className="max-w-sm mx-auto mt-10 p-6 bg-card rounded shadow">
-      {user ? (
-        <div>
-          <p className="mb-4">Signed in as {user.email}</p>
-          <button className="btn btn-primary" onClick={handleSignOut}>Sign Out</button>
-        </div>
-      ) : (
-        <form onSubmit={handleAuth} className="space-y-4">
-          <h2 className="text-xl font-bold mb-2">{mode === "signup" ? "Sign Up" : "Sign In"}</h2>
-          <input
-            className="w-full p-2 border rounded"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          <input
-            className="w-full p-2 border rounded"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          {error && <p className="text-red-500">{error}</p>}
-          <button className="btn btn-primary w-full" type="submit">
-            {mode === "signup" ? "Sign Up" : "Sign In"}
-          </button>
-          <button
-            type="button"
-            className="text-sm underline mt-2"
-            onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
-          >
-            {mode === "signup" ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-          </button>
-        </form>
-      )}
-    </div>
-  );
-}
