@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getChatMessages } from "@/lib/chat-supabase";
 
+interface HistoryItem {
   id: string;
   user_id: string;
   feature?: string;
