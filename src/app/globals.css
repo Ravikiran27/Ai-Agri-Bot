@@ -43,7 +43,7 @@ body {
     --sidebar-ring: 120 40% 35%;
   }
   .dark {
-    --background: 120 20% 10%; /* deep green */
+    --background: 120 20% 11%; /* deep green */
     --foreground: 120 20% 95%; /* light green text */
     --card: 120 30% 15%;
     --card-foreground: 120 20% 98%;
